@@ -7,6 +7,18 @@ import LoadingState from '@/components/LoadingState';
 import EmptyState from '@/components/EmptyState';
 import Header from '@/components/Header';
 import { Card } from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table';
+import StatusBadge from '@/components/StatusBadge';
+import { formatDistanceToNow } from 'date-fns';
+import { Progress } from '@/components/ui/progress';
+import { Beaker } from 'lucide-react';
 
 const Index = () => {
   const { data: builds, isLoading, isError, error } = useBuilds();
@@ -19,6 +31,13 @@ const Index = () => {
       new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
     );
   }, [builds]);
+
+  // Function to determine color class for coverage progress based on percentage
+  const getCoverageColorClass = (percentage: number) => {
+    if (percentage >= 80) return 'bg-success';
+    if (percentage >= 60) return 'bg-warning';
+    return 'bg-error';
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -35,11 +54,75 @@ const Index = () => {
         ) : sortedBuilds.length === 0 ? (
           <EmptyState />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {sortedBuilds.map((build: BuildData) => (
-              <BuildCard key={build.id} build={build} />
-            ))}
-          </div>
+          <Card>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[180px]">Build</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Code Coverage</TableHead>
+                  <TableHead>Test Results</TableHead>
+                  <TableHead>Last Updated</TableHead>
+                  <TableHead className="text-right">ID</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {sortedBuilds.map((build: BuildData) => {
+                  // Format dates for readability
+                  const formattedDate = formatDistanceToNow(new Date(build.updatedAt), { 
+                    addSuffix: true,
+                    includeSeconds: true 
+                  });
+                  
+                  // Calculate test success rate
+                  const testSuccessRate = build.testsTotal > 0 
+                    ? Math.round((build.testsSuccess / build.testsTotal) * 100) 
+                    : 0;
+
+                  return (
+                    <TableRow key={build.id} className="hover:bg-muted/40">
+                      <TableCell className="font-medium">{build.name}</TableCell>
+                      <TableCell>
+                        <StatusBadge status={build.status} />
+                      </TableCell>
+                      <TableCell>
+                        <div className="w-full max-w-[200px] space-y-1">
+                          <div className="flex justify-between text-xs text-muted-foreground">
+                            <span>Coverage</span>
+                            <span className="font-medium">{build.coveragePercentage}%</span>
+                          </div>
+                          <Progress 
+                            value={build.coveragePercentage} 
+                            className="h-2 bg-secondary"
+                            indicatorClassName={getCoverageColorClass(build.coveragePercentage)} 
+                          />
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Beaker size={14} className="text-muted-foreground" />
+                          <span className="text-success font-medium">{build.testsSuccess}</span>
+                          {build.testsFailed > 0 && (
+                            <>
+                              <span>/</span>
+                              <span className="text-error font-medium">{build.testsFailed}</span>
+                            </>
+                          )}
+                          <span className="text-muted-foreground">of {build.testsTotal}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground text-sm">
+                        {formattedDate}
+                      </TableCell>
+                      <TableCell className="text-right font-mono text-xs text-muted-foreground truncate">
+                        {build.id}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </Card>
         )}
       </main>
       
