@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ApiResponse } from '@/types';
 import { toast } from 'sonner';
 
-const API_URL = 'http://localhost:8000/api/endpoint';
+const API_URL = 'http://localhost:8000/api/pipeline';
 
 const fetchBuilds = async (): Promise<ApiResponse['data']> => {
   try {
