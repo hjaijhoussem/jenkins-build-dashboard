@@ -3,7 +3,13 @@ import { useQuery } from '@tanstack/react-query';
 import { ApiResponse } from '@/types';
 import { toast } from 'sonner';
 
-const API_URL = 'http://localhost:8000/api/pipeline';
+// Read API configuration from environment variables
+const API_HOST = import.meta.env.VITE_API_HOST || 'localhost';
+const API_PORT = import.meta.env.VITE_API_PORT || '8000';
+const API_PATH = import.meta.env.VITE_API_PATH || '/api/pipeline';
+
+// Construct the API URL using environment variables
+const API_URL = `http://${API_HOST}:${API_PORT}${API_PATH}`;
 
 const fetchBuilds = async (): Promise<ApiResponse['data']> => {
   try {
