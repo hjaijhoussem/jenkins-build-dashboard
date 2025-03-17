@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useParams, Link } from 'react-router-dom';
 import { useBuilds } from '@/hooks/useBuilds';
 import { BuildData } from '@/types';
 import BuildCard from '@/components/BuildCard';
@@ -18,10 +19,21 @@ import {
 import StatusBadge from '@/components/StatusBadge';
 import { formatDistanceToNow } from 'date-fns';
 import { Progress } from '@/components/ui/progress';
-import { Beaker } from 'lucide-react';
+import { Beaker, ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { 
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator
+} from '@/components/ui/breadcrumb';
 
 const Index = () => {
-  const { data: builds, isLoading, isError, error } = useBuilds();
+  // Get project ID from URL
+  const { projectId } = useParams();
+  const { data: builds, isLoading, isError, error } = useBuilds(projectId);
   
   // Sort builds by updatedAt date (newest first)
   const sortedBuilds = React.useMemo(() => {
@@ -44,6 +56,32 @@ const Index = () => {
       <Header />
       
       <main className="flex-1 container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="mb-6">
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link to="/projects">Projects</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Pipelines</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+          
+          <div className="flex justify-between items-center mt-4">
+            <h1 className="text-2xl font-bold">Project Pipelines</h1>
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/projects">
+                <ArrowLeft size={14} className="mr-1" />
+                Back to Projects
+              </Link>
+            </Button>
+          </div>
+        </div>
+        
         {isLoading ? (
           <LoadingState />
         ) : isError ? (
