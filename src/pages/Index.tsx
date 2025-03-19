@@ -19,7 +19,7 @@ import {
 import StatusBadge from '@/components/StatusBadge';
 import { formatDistanceToNow } from 'date-fns';
 import { Progress } from '@/components/ui/progress';
-import { Beaker, ArrowLeft } from 'lucide-react';
+import { Beaker, ArrowLeft, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { 
   Breadcrumb,
@@ -29,6 +29,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator
 } from '@/components/ui/breadcrumb';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 const Index = () => {
   // Get project ID from URL
@@ -50,6 +51,14 @@ const Index = () => {
     if (percentage >= 60) return 'bg-warning';
     return 'bg-error';
   };
+
+  // Check if the error is specifically a "project not found" error
+  const isProjectNotFoundError = React.useMemo(() => {
+    if (!error) return false;
+    
+    // Check the error message for the specific project not found message
+    return error.message?.includes('Project') && error.message?.includes('not found');
+  }, [error]);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -84,6 +93,22 @@ const Index = () => {
         
         {isLoading ? (
           <LoadingState />
+        ) : isProjectNotFoundError ? (
+          <Alert variant="destructive" className="mb-6">
+            <AlertTriangle className="h-5 w-5" />
+            <AlertTitle>Project Not Found</AlertTitle>
+            <AlertDescription>
+              The project you're looking for doesn't exist or has been deleted.
+              <div className="mt-4">
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/projects">
+                    <ArrowLeft size={14} className="mr-1" />
+                    Return to Projects
+                  </Link>
+                </Button>
+              </div>
+            </AlertDescription>
+          </Alert>
         ) : isError ? (
           <Card className="p-6 border border-error/20 bg-error/5 text-center">
             <h3 className="text-lg font-medium text-error mb-2">Error loading build data</h3>
