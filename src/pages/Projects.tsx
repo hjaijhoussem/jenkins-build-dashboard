@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { CreateProjectDialog } from '@/components/CreateProjectDialog';
 
 // Static project data for demonstration purposes
 const staticProjects: ProjectData[] = [
@@ -90,9 +91,12 @@ const Projects = () => {
       <Header />
       
       <main className="flex-1 container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold">Projects Dashboard</h1>
-          <p className="text-muted-foreground">View all projects and their pipeline statuses</p>
+        <div className="mb-6 flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold">Projects Dashboard</h1>
+            <p className="text-muted-foreground">View all projects and their pipeline statuses</p>
+          </div>
+          <CreateProjectDialog />
         </div>
         
         <Card>
