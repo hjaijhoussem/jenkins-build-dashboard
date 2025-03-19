@@ -23,6 +23,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CreateProjectDialog } from '@/components/CreateProjectDialog';
+import { DeleteProjectDialog } from '@/components/DeleteProjectDialog';
 
 // Static project data for demonstration purposes
 const staticProjects: ProjectData[] = [
@@ -108,7 +109,7 @@ const Projects = () => {
                 <TableHead className="text-center">Pipelines</TableHead>
                 <TableHead className="text-center">Jobs Status</TableHead>
                 <TableHead>Last Updated</TableHead>
-                <TableHead className="w-[100px]">Actions</TableHead>
+                <TableHead className="text-right pr-4">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -158,17 +159,22 @@ const Projects = () => {
                       {formattedDate}
                     </TableCell>
                     <TableCell>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="w-full"
-                        asChild
-                      >
-                        <Link to={`/project/${project.id}`}>
-                          <span>View</span>
-                          <ArrowRight size={14} />
-                        </Link>
-                      </Button>
+                      <div className="flex justify-end gap-2">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          asChild
+                        >
+                          <Link to={`/project/${project.id}`}>
+                            <span>View</span>
+                            <ArrowRight size={14} />
+                          </Link>
+                        </Button>
+                        <DeleteProjectDialog 
+                          projectId={project.id} 
+                          projectName={project.name} 
+                        />
+                      </div>
                     </TableCell>
                   </TableRow>
                 );
