@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { ProjectData } from '@/types';
 import { Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import { Card } from '@/components/ui/card';
@@ -24,68 +23,47 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CreateProjectDialog } from '@/components/CreateProjectDialog';
 import { DeleteProjectDialog } from '@/components/DeleteProjectDialog';
-
-// Static project data for demonstration purposes
-const staticProjects: ProjectData[] = [
-  {
-    id: "proj-1",
-    name: "Frontend Application",
-    description: "Main user-facing web application",
-    pipelinesCount: 24,
-    successJobsCount: 20,
-    failedJobsCount: 4,
-    createdAt: new Date(2023, 6, 15).toISOString(),
-    updatedAt: new Date(Date.now() - 1000 * 60 * 30).toISOString() // 30 minutes ago
-  },
-  {
-    id: "proj-2",
-    name: "Backend API",
-    description: "RESTful API services and database operations",
-    pipelinesCount: 56,
-    successJobsCount: 48,
-    failedJobsCount: 8,
-    createdAt: new Date(2023, 3, 10).toISOString(),
-    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString() // 2 hours ago
-  },
-  {
-    id: "proj-3",
-    name: "Mobile App",
-    description: "Cross-platform mobile application using React Native",
-    pipelinesCount: 18,
-    successJobsCount: 15,
-    failedJobsCount: 3,
-    createdAt: new Date(2023, 8, 5).toISOString(),
-    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString() // 1 day ago
-  },
-  {
-    id: "proj-4",
-    name: "Authentication Service",
-    description: "User authentication and authorization microservice",
-    pipelinesCount: 12,
-    successJobsCount: 12,
-    failedJobsCount: 0,
-    createdAt: new Date(2023, 5, 20).toISOString(),
-    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString() // 5 hours ago
-  },
-  {
-    id: "proj-5",
-    name: "Data Processing Service",
-    description: "Big data processing and analytics pipeline",
-    pipelinesCount: 32,
-    successJobsCount: 28,
-    failedJobsCount: 4,
-    createdAt: new Date(2023, 4, 12).toISOString(),
-    updatedAt: new Date(Date.now() - 1000 * 60 * 180).toISOString() // 3 hours ago
-  }
-];
+import { useProjects } from '@/hooks/useProjects';
+import LoadingState from '@/components/LoadingState';
 
 const Projects = () => {
+  const { data: projects, isLoading, error } = useProjects();
+
   // Sort projects by updatedAt date (newest first)
   const sortedProjects = React.useMemo(() => {
-    return [...staticProjects].sort((a, b) => 
+    if (!projects) return [];
+    
+    return [...projects].sort((a, b) => 
       new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
     );
-  }, []);
+  }, [projects]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        <Header />
+        <main className="flex-1 container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <LoadingState />
+        </main>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        <Header />
+        <main className="flex-1 container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <Card className="p-6">
+            <div className="text-center">
+              <h2 className="text-lg font-medium">Error loading projects</h2>
+              <p className="text-muted-foreground mt-2">{error.message}</p>
+            </div>
+          </Card>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -113,7 +91,7 @@ const Projects = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {sortedProjects.map((project: ProjectData) => {
+              {sortedProjects.map((project) => {
                 // Format dates for readability
                 const formattedDate = formatDistanceToNow(new Date(project.updatedAt), { 
                   addSuffix: true,
