@@ -170,7 +170,11 @@ const Index = () => {
                         : 0;
 
                       return (
-                        <TableRow key={build.id} className="hover:bg-muted/40">
+                        <TableRow 
+                          key={build.id} 
+                          className="hover:bg-muted/40 cursor-pointer"
+                          onClick={() => openBuildDetails(build)}
+                        >
                           <TableCell className="font-medium">{build.name}</TableCell>
                           <TableCell>
                             <StatusBadge status={build.status} />
@@ -210,13 +214,15 @@ const Index = () => {
                             {formattedDate}
                           </TableCell>
                           <TableCell className="text-right">
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              onClick={() => openBuildDetails(build)}
-                            >
-                              View Details
-                            </Button>
+                            <div onClick={(e) => e.stopPropagation()}>
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={() => openBuildDetails(build)}
+                              >
+                                View Details
+                              </Button>
+                            </div>
                           </TableCell>
                         </TableRow>
                       );

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import { Card } from '@/components/ui/card';
 import {
@@ -11,7 +11,6 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
-import { formatDistanceToNow } from 'date-fns';
 import { 
   CheckCircle, 
   XCircle, 
@@ -28,6 +27,7 @@ import LoadingState from '@/components/LoadingState';
 
 const Projects = () => {
   const { data: projects, isLoading, error } = useProjects();
+  const navigate = useNavigate();
 
   // Sort projects by updatedAt date (newest first)
   const sortedProjects = React.useMemo(() => {
@@ -37,6 +37,11 @@ const Projects = () => {
       new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
     );
   }, [projects]);
+
+  // Function to handle row click
+  const handleRowClick = (projectId: string) => {
+    navigate(`/project/${projectId}`);
+  };
 
   if (isLoading) {
     return (
@@ -114,7 +119,11 @@ const Projects = () => {
                 });
                 
                 return (
-                  <TableRow key={project.id} className="hover:bg-muted/40">
+                  <TableRow 
+                    key={project.id} 
+                    className="hover:bg-muted/40 cursor-pointer"
+                    onClick={() => handleRowClick(project.id)}
+                  >
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-2">
                         <PackageOpen size={16} className="text-primary" />
@@ -152,7 +161,7 @@ const Projects = () => {
                       {formattedDate}
                     </TableCell>
                     <TableCell>
-                      <div className="flex justify-end gap-2">
+                      <div className="flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
                         <Button 
                           variant="ghost" 
                           size="sm"
