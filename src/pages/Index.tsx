@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useBuilds } from '@/hooks/useBuilds';
@@ -17,9 +18,9 @@ import {
   TableRow
 } from '@/components/ui/table';
 import StatusBadge from '@/components/StatusBadge';
-import { formatDistanceToNow } from 'date-fns';
+import { format } from 'date-fns';
 import { Progress } from '@/components/ui/progress';
-import { Beaker, ArrowLeft, AlertTriangle } from 'lucide-react';
+import { Beaker, ArrowLeft, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { 
   Breadcrumb,
@@ -148,22 +149,24 @@ const Index = () => {
                       <TableHead className="w-[180px]">Build</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Code Coverage</TableHead>
-                      <TableHead>Test Results</TableHead>
+                      <TableHead>Passed Tests</TableHead>
+                      <TableHead>Failed Tests</TableHead>
                       <TableHead>Last Updated</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {sortedBuilds.map((build: BuildData) => {
-                      // Format dates for readability
-                      const formattedDate = formatDistanceToNow(new Date(build.updatedAt), { 
-                        addSuffix: true,
-                        includeSeconds: true 
-                      });
+                      // Format date as DD/MM/YYYY HH:MM
+                      const formattedDate = format(new Date(build.updatedAt), 'dd/MM/yyyy HH:mm');
                       
-                      // Calculate test success rate
-                      const testSuccessRate = build.testsTotal > 0 
+                      // Calculate test percentages
+                      const passedPercentage = build.testsTotal > 0 
                         ? Math.round((build.testsSuccess / build.testsTotal) * 100) 
+                        : 0;
+                      
+                      const failedPercentage = build.testsTotal > 0 
+                        ? Math.round((build.testsFailed / build.testsTotal) * 100) 
                         : 0;
 
                       return (
@@ -187,15 +190,20 @@ const Index = () => {
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
-                              <Beaker size={14} className="text-muted-foreground" />
+                              <CheckCircle size={14} className="text-success" />
                               <span className="text-success font-medium">{build.testsSuccess}</span>
-                              {build.testsFailed > 0 && (
-                                <>
-                                  <span>/</span>
-                                  <span className="text-error font-medium">{build.testsFailed}</span>
-                                </>
-                              )}
-                              <span className="text-muted-foreground">of {build.testsTotal}</span>
+                              <span className="text-xs text-muted-foreground">
+                                ({passedPercentage}%)
+                              </span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <XCircle size={14} className="text-error" />
+                              <span className="text-error font-medium">{build.testsFailed}</span>
+                              <span className="text-xs text-muted-foreground">
+                                ({failedPercentage}%)
+                              </span>
                             </div>
                           </TableCell>
                           <TableCell className="text-muted-foreground text-sm">
