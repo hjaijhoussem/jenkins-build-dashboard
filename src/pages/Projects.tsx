@@ -85,21 +85,33 @@ const Projects = () => {
                 <TableHead className="w-[200px]">Project</TableHead>
                 <TableHead>Description</TableHead>
                 <TableHead className="text-center">Pipelines</TableHead>
-                <TableHead className="text-center">Jobs Status</TableHead>
+                <TableHead>Successful Jobs</TableHead>
+                <TableHead>Failed Jobs</TableHead>
                 <TableHead>Last Updated</TableHead>
                 <TableHead className="text-right pr-4">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {sortedProjects.map((project) => {
-                // Format dates for readability
-                const formattedDate = formatDistanceToNow(new Date(project.updatedAt), { 
-                  addSuffix: true,
-                  includeSeconds: true 
-                });
-                
-                // Calculate total jobs
+                // Calculate total jobs and percentages
                 const totalJobs = project.successJobsCount + project.failedJobsCount;
+                const successPercentage = totalJobs > 0 
+                  ? Math.round((project.successJobsCount / totalJobs) * 100) 
+                  : 0;
+                const failedPercentage = totalJobs > 0 
+                  ? Math.round((project.failedJobsCount / totalJobs) * 100) 
+                  : 0;
+                
+                // Format dates for readability
+                const date = new Date(project.updatedAt);
+                const formattedDate = date.toLocaleDateString('en-GB', {
+                  day: '2-digit',
+                  month: '2-digit', 
+                  year: 'numeric'
+                }) + ' ' + date.toLocaleTimeString('en-GB', {
+                  hour: '2-digit',
+                  minute: '2-digit'
+                });
                 
                 return (
                   <TableRow key={project.id} className="hover:bg-muted/40">
@@ -119,18 +131,21 @@ const Projects = () => {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center justify-center gap-4">
-                        <div className="flex items-center gap-1">
-                          <CheckCircle size={16} className="text-success" />
-                          <span className="font-medium">{project.successJobsCount}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <XCircle size={16} className="text-error" />
-                          <span className="font-medium">{project.failedJobsCount}</span>
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          of {totalJobs}
-                        </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle size={14} className="text-success" />
+                        <span className="font-medium">{project.successJobsCount}</span>
+                        <span className="text-xs text-muted-foreground">
+                          ({successPercentage}%)
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <XCircle size={14} className="text-error" />
+                        <span className="font-medium">{project.failedJobsCount}</span>
+                        <span className="text-xs text-muted-foreground">
+                          ({failedPercentage}%)
+                        </span>
                       </div>
                     </TableCell>
                     <TableCell className="text-muted-foreground text-sm">
